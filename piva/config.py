@@ -1,0 +1,7 @@
+class Config:
+    ACCEPT_BUTTON_PIN = 31
+    UP_BUTTON_PIN = 38
+    DOWN_BUTTON_PIN = 36
+
+    CAMERA_WIDTH = 1920
+    CAMERA_HEIGHT = 1080
