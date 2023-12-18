@@ -13,7 +13,7 @@ sudo dphys-swapfile swapon
 ```
 
 ```
-sudo apt install espeak ffmpeg python3-espeak
+sudo apt install espeak ffmpeg
 pip3 install torch==2.1.1 torchvision==0.16.1 --index-url https://download.pytorch.org/whl/cpu --no-cache-dir
 ```
 
