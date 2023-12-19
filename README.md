@@ -22,3 +22,7 @@ pip3 install torch==2.1.1 torchvision==0.16.1 --index-url https://download.pytor
 #start_x=1
 dtoverlay=imx219
 ```
+
+```
+sudo apt install tesseract-ocr
+```
