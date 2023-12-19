@@ -2,12 +2,15 @@ import RPi.GPIO as GPIO
 from picamera2 import Picamera2
 import alsaaudio
 from piva.config import Config
-from piva.speech_synthesizer import SpeechSynthesizer
+from piva.helpers.speech_synthesizer import SpeechSynthesizer
+from piva.helpers.task_thread import TaskThread
 from piva.modules.dependencies import Dependencies as ModulesDependencies
 
 
 class PiVA:
     def __init__(self, debug=False):
+        self.task_handler = TaskThread()
+
         self.camera = None
         self.audio_mixer = None
         self.speech_synthesizer = None
@@ -16,7 +19,6 @@ class PiVA:
         self.current_mode = None
 
         self.initialized = False
-        self.processing = False
 
         self.debug = debug
 
@@ -56,15 +58,15 @@ class PiVA:
         self.__log("Buttons init...")
         GPIO.setup(Config.ACCEPT_BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.add_event_detect(Config.ACCEPT_BUTTON_PIN, GPIO.RISING, callback=self.__button_pressed_callback,
-                              bouncetime=200)
+                              bouncetime=2000)
 
         GPIO.setup(Config.UP_BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.add_event_detect(Config.UP_BUTTON_PIN, GPIO.RISING, callback=self.__button_pressed_callback,
-                              bouncetime=200)
+                              bouncetime=2000)
 
         GPIO.setup(Config.DOWN_BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.add_event_detect(Config.DOWN_BUTTON_PIN, GPIO.RISING, callback=self.__button_pressed_callback,
-                              bouncetime=200)
+                              bouncetime=2000)
 
         self.__log("Buttons ready...")
 
@@ -87,29 +89,26 @@ class PiVA:
             self.__handle_button(channel)
 
     def __handle_button(self, button_id):
-        if not self.processing:
-            if button_id == Config.ACCEPT_BUTTON_PIN:
-                self.__execute_current_module()
+        if button_id == Config.ACCEPT_BUTTON_PIN:
+            self.__execute_current_module()
 
-            elif button_id == Config.UP_BUTTON_PIN:
-                self.__switch_to_next_module()
+        elif button_id == Config.UP_BUTTON_PIN:
+            self.__switch_to_next_module()
 
-            elif button_id == Config.DOWN_BUTTON_PIN:
-                self.__switch_to_prev_module()
+        elif button_id == Config.DOWN_BUTTON_PIN:
+            self.__switch_to_prev_module()
 
-            else:
-                self.__log(f"unsupported button id: {button_id}")
+        else:
+            self.__log(f"unsupported button id: {button_id}")
 
     def __execute_current_module(self):
         if self.current_mode:
-            if not self.processing:
+            if not self.task_handler.is_running:
                 self.__log(f"Executing {self.current_mode.get_module_name()}...")
                 self.speech_synthesizer.say(f"Executing {self.current_mode.get_module_name()}")
 
-                self.processing = True
-
-                self.current_mode.process(**self.__resolve_module_dependencies(self.current_mode))
-                self.processing = False
+                func = lambda: self.current_mode.process(**self.__resolve_module_dependencies(self.current_mode))
+                self.task_handler.run(func)
             else:
                 self.__log(f"Currently processing...")
                 self.speech_synthesizer.say("Currently processing")
