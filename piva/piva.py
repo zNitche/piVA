@@ -2,7 +2,7 @@ import RPi.GPIO as GPIO
 from picamera2 import Picamera2
 import alsaaudio
 from piva.config import Config
-from piva.speech_synthesizer.synthesizer import SpeechSynthesizer
+from piva.speech_synthesizer import SpeechSynthesizer
 from piva.modules.dependencies import Dependencies as ModulesDependencies
 
 
@@ -56,15 +56,15 @@ class PiVA:
         self.__log("Buttons init...")
         GPIO.setup(Config.ACCEPT_BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.add_event_detect(Config.ACCEPT_BUTTON_PIN, GPIO.RISING, callback=self.__button_pressed_callback,
-                              bouncetime=1500)
+                              bouncetime=200)
 
         GPIO.setup(Config.UP_BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.add_event_detect(Config.UP_BUTTON_PIN, GPIO.RISING, callback=self.__button_pressed_callback,
-                              bouncetime=1500)
+                              bouncetime=200)
 
         GPIO.setup(Config.DOWN_BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.add_event_detect(Config.DOWN_BUTTON_PIN, GPIO.RISING, callback=self.__button_pressed_callback,
-                              bouncetime=1500)
+                              bouncetime=200)
 
         self.__log("Buttons ready...")
 
@@ -74,8 +74,9 @@ class PiVA:
         from piva.modules.objects_detection_module import ObjectsDetectionModule
         from piva.modules.volume_up_module import VolumeUpModule
         from piva.modules.volume_down_module import VolumeDownModule
+        from piva.modules.ocr_module import OCRModule
 
-        self.modules = [ObjectsDetectionModule(), VolumeUpModule(), VolumeDownModule()]
+        self.modules = [ObjectsDetectionModule(), OCRModule(), VolumeUpModule(), VolumeDownModule()]
         self.current_mode = self.modules[0]
 
         self.__log("Modules ready...")
@@ -101,13 +102,17 @@ class PiVA:
 
     def __execute_current_module(self):
         if self.current_mode:
-            self.__log(f"Executing {self.current_mode.get_module_name()}...")
-            self.speech_synthesizer.say(f"Executing {self.current_mode.get_module_name()}")
+            if not self.processing:
+                self.__log(f"Executing {self.current_mode.get_module_name()}...")
+                self.speech_synthesizer.say(f"Executing {self.current_mode.get_module_name()}")
 
-            self.processing = True
+                self.processing = True
 
-            self.current_mode.process(**self.__resolve_module_dependencies(self.current_mode))
-            self.processing = False
+                self.current_mode.process(**self.__resolve_module_dependencies(self.current_mode))
+                self.processing = False
+            else:
+                self.__log(f"Currently processing...")
+                self.speech_synthesizer.say("Currently processing")
 
     def __resolve_module_dependencies(self, module):
         dependencies = {
