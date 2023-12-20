@@ -25,6 +25,12 @@ Anyway, here is the device that can help blind people perform everyday activitie
 - Battery level monitoring.
 - 3D printed case, that makes device mobile.
 
+### Usage
+
+2 bottom buttons are for navigation between available modules.
+Top one is for executing currently selected module.
+Every step (current module change, module executing) is described by speech synthesizer.
+
 ### Parts
 ![parts](.media/parts.jpg)
 
