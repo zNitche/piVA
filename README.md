@@ -100,6 +100,11 @@ sudo apt install python3-pip espeak ffmpeg tesseract-ocr
 pip3 install -r requirements.txt
 ```
 
+6. following command should be executed at device startup
+```
+python3 main.py
+```
+
 ### Limitations
 - objects detection is slow and lacks precision.
 - OCR works good only when text is directly in front of camera.
