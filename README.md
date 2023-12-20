@@ -97,6 +97,10 @@ sudo apt install python3-pip espeak ffmpeg tesseract-ocr
 
 5. install required python packages
 ```
+pip3 install torch==2.1.1 torchvision==0.16.1 --index-url https://download.pytorch.org/whl/cpu --no-cache-dir
+```
+
+```
 pip3 install -r requirements.txt
 ```
 
