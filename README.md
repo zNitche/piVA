@@ -51,7 +51,7 @@ Every step (current module change, module executing) is described by speech synt
 | jack connector              |    1     |
 | 270 Ω resistor              |    2     |
 | 150 Ω resistor              |    2     |
-| 10nF electrolytic capacitor |    2     |
+| 10uF electrolytic capacitor |    2     |
 | 10nF polyester capacitor    |    2     |
 
 ### Assemble
@@ -112,6 +112,7 @@ python3 main.py
 ### Limitations
 - objects detection is slow and lacks precision.
 - OCR works good only when text is directly in front of camera.
+- there is no case to fit device in and therefore it is not mobile.
 
 ### Possible Improvements
 - replacing built in objects detector with faster and more reliable solution like `YOLOv5`.
